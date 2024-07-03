@@ -138,4 +138,40 @@ describe('parse(content, { settings, ecmaFeatures })', function () {
     parseStubParser.parse = parseSpy;
     expect(parse.bind(null, path, content, { settings: {}, parserPath: 'espree', languageOptions: { parserOptions: { sourceType: 'module', ecmaVersion: 2015, ecmaFeatures: { jsx: true } } }, parserOptions: { sourceType: 'script' } })).not.to.throw(Error);
   });
+
+  it('uses ecmaVersion from languageOptions', function () {
+    const parseSpy = sinon.spy();
+    parseStubParser.parse = parseSpy;
+    parse(path, content, { settings: {}, parserPath: parseStubParserPath, languageOptions: { ecmaVersion: 2015, parserOptions: { ecmaFeatures: { jsx: true } } } });
+    expect(parseSpy.callCount, 'custom parser to be called once').to.equal(1);
+    expect(parseSpy.args[0][1], 'custom parser to get an object as its second argument').to.be.an('object');
+    expect(parseSpy.args[0][1].ecmaVersion, 'custom parser to get ecmaVersion from languageOptions').to.equal(2015);
+  });
+
+  it('uses sourceType from languageOptions', function () {
+    const parseSpy = sinon.spy();
+    parseStubParser.parse = parseSpy;
+    parse(path, content, { settings: {}, parserPath: parseStubParserPath, languageOptions: { sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } } });
+    expect(parseSpy.callCount, 'custom parser to be called once').to.equal(1);
+    expect(parseSpy.args[0][1], 'custom parser to get an object as its second argument').to.be.an('object');
+    expect(parseSpy.args[0][1].sourceType, 'custom parser to get sourceType from languageOptions').to.equal('module');
+  });
+
+  it('prefers languageOptions.parserOptions.ecmaVersion over languageOptions.ecmaVersion', function () {
+    const parseSpy = sinon.spy();
+    parseStubParser.parse = parseSpy;
+    parse(path, content, { settings: {}, parserPath: parseStubParserPath, languageOptions: { ecmaVersion: 5, parserOptions: { ecmaVersion: 2015, ecmaFeatures: { jsx: true } } } });
+    expect(parseSpy.callCount, 'custom parser to be called once').to.equal(1);
+    expect(parseSpy.args[0][1], 'custom parser to get an object as its second argument').to.be.an('object');
+    expect(parseSpy.args[0][1].ecmaVersion, 'custom parser to get ecmaVersion from languageOptions').to.equal(2015);
+  });
+
+  it('prefers languageOptions.parserOptions.sourceType over languageOptions.sourceType', function () {
+    const parseSpy = sinon.spy();
+    parseStubParser.parse = parseSpy;
+    parse(path, content, { settings: {}, parserPath: parseStubParserPath, languageOptions: { sourceType: 'script', parserOptions: { sourceType: 'module', ecmaFeatures: { jsx: true } } } });
+    expect(parseSpy.callCount, 'custom parser to be called once').to.equal(1);
+    expect(parseSpy.args[0][1], 'custom parser to get an object as its second argument').to.be.an('object');
+    expect(parseSpy.args[0][1].sourceType, 'custom parser to get sourceType from languageOptions').to.equal('module');
+  });
 });
