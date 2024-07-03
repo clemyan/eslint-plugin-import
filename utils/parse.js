@@ -113,7 +113,11 @@ exports.default = function parse(path, content, context) {
   if (!parserOrPath) { throw new Error('parserPath or languageOptions.parser is required!'); }
 
   // hack: espree blows up with frozen options
-  parserOptions = Object.assign({}, parserOptions);
+  parserOptions = Object.assign(
+    {},
+    context.languageOptions && { ecmaVersion: context.languageOptions.ecmaVersion, sourceType: context.languageOptions.sourceType },
+    parserOptions
+  );
   parserOptions.ecmaFeatures = Object.assign({}, parserOptions.ecmaFeatures);
 
   // always include comments and tokens (for doc parsing)
