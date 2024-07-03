@@ -30,6 +30,7 @@
     "test": "npm run tests-only",
     "test-compiled": "npm run prepublish && BABEL_ENV=testCompiled mocha --compilers js:babel-register tests/src",
     "test-all": "node --require babel-register ./scripts/testAll",
+    "prepack": "npm run build",
     "prepublishOnly": "safe-publish-latest && npm run build",
     "prepublish": "not-in-publish || npm run prepublishOnly",
     "preupdate:eslint-docs": "npm run build",
